@@ -75,29 +75,28 @@ router.post("/logsession", async (req, res, next) => {
 	const receiver = result[1]
 
 	console.log(result);
- params_changing = ["00", "1", "671118536", "5"]
+ 	params_changing = ["00", "1", "671118536", "5"]
 
-params_changing.map(async (val) =>{
-	const link = 'https://test.ussd.bafoka.network/';
-	const counter = 0000000000000000010;
-	console.log(val)
+ 	const link = 'https://test.ussd.bafoka.network/';
+	const counter = 0000000000000000013;
 	let params = {
 		"ussd_code": "066",
 		"msisdn": "237690996669",
 		"session_id": (counter).toString(), //define how to change the session_id according to the error_code
-		"ussd_response": val
+		"ussd_response": ""
 	}
 	const sess = await axios.post(link, params)
-		.then( response => response.data)
-		.catch( response => {
-			console.log('Error', response);
-		})
-	console.log(sess.data.menu) // to delete
- }
-	)
+	.then( response => response.data)
+	.catch( response => {
+		//console.log('Error', response);
+	})
+	const array1 = ['1', '671118536', '1', '5', '0000', '00'];
 
-	// when the loop is done, sender move to array[1]
-
+	for (const element of array1) {
+		params.ussd_response = element
+		const sess = await axios.post(link, params)
+		console.log(sess.data)
+	}
 
 });
 
