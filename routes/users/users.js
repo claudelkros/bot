@@ -53,7 +53,7 @@ router.post("/seeds", async (req, res, next) => {
 		next(error);
 	}
 });
-router.post("/logsession", async (req, res, next) => {
+router.post("/send_vouchers", async (req, res, next) => {
 	// connect to DB
 	let users_list = []
 	try {
@@ -82,7 +82,7 @@ router.post("/logsession", async (req, res, next) => {
 	let params = {
 		"ussd_code": "066",
 		"msisdn": "237690996669",
-		"session_id": (counter).toString(), //define how to change the session_id according to the error_code
+		"session_id": (counter+1).toString(), //define how to change the session_id according to the error_code
 		"ussd_response": ""
 	}
 	const sess = await axios.post(link, params)
@@ -92,12 +92,13 @@ router.post("/logsession", async (req, res, next) => {
 	})
 	const array1 = ['1', '671118536', '1', '5', '0000', '00'];
 
-	for (const element of array1) {
-		params.ussd_response = element
-		const sess = await axios.post(link, params)
-		console.log(sess.data)
+	for (let i = 0; i < 10; i++) { // loop of 10 iterations
+		for (const element of array1) {
+			params.ussd_response = element
+			const sess = await axios.post(link, params)
+			console.log(sess.data)
+		}
 	}
-
 });
 
 router.delete("/:id", async (req, res, next) => {
