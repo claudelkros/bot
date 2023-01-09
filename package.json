@@ -1,5 +1,5 @@
 {
-  "name": "iot-metrics",
+  "name": "bot_ussd",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -21,7 +21,7 @@
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "faker": "^5.5.3",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "moment": "^2.29.1",
     "mongodb": "^3.6.4",
     "mongoose": "^5.2.8",
@@ -31,7 +31,8 @@
     "querystring": "^0.2.1",
     "request": "^2.88.2",
     "swagger-jsdoc": "^7.0.0-rc.6",
-    "swagger-ui-express": "^4.1.6"
+    "swagger-ui-express": "^4.1.6",
+    "yargs": "^17.6.2"
   },
   "devDependencies": {
     "jsdoc": "^3.6.6",

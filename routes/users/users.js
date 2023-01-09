@@ -3,288 +3,208 @@ const router = express.Router();
 // const bcrypt = require("bcryptjs");
 // const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const request = require('request');
-const querystring = require('querystring');
-const axios = require('axios');
+const request = require("request");
+const querystring = require("querystring");
+const axios = require("axios");
 dotenv.config();
 //const auth = require("../../middlewares/auth");
 const User = require("../../models/Users");
-const Station = require("../../models/Stations");
+const preRegisterUser = require("../../models/preRegister");
+const Register = require("../../models/Register");
 const { findById } = require("../../models/Users");
-
+const { setMaxIdleHTTPParsers } = require("http");
 
 router.get("/", async (req, res, next) => {
-	try {
-		const users = await User.find({});
-		res.status(200).json(users);
-	} catch (error) {
-		next(error);
-	}
+  try {
+    const users = await User.find({});
+    res.status(200).json(users);
+  } catch (error) {
+    next(error);
+  }
 });
 
 //Insert new phone number into the Database
 router.post("/seeds", async (req, res, next) => {
-	const { number } = req.body;
-	// First Validate The Request
-	//const { errors } = await Schema.validateAsync(req.body);
-	if (!number) {
-		return res.status(422).json({ error: "please add all the fields" });
-	}
+  const { number } = req.body;
+  // First Validate The Request
+  //const { errors } = await Schema.validateAsync(req.body);
+  if (!number) {
+    return res.status(422).json({ error: "please add all the fields" });
+  }
 
-	try {
-		// Check if this user already exisits
-		const user = await User.findOne({ number: req.body.number });
-		if (!user) {
-			//Insert the new user
-			const newUser = new User({
-				number,
-			});
-			const user = await newUser.save();
+  try {
+    // Check if this user already exisits
+    const user = await preRegisterUser.findOne({ number: req.body.number });
+    if (!user) {
+      //Insert the new user
+      const newUser = new preRegisterUser({
+        number,
+      });
+      const user = await newUser.save();
 
-			//return json
-			res.status(200).json({
-				user,
-			});
-		} else {
-			//Insert the new user
-			return res.status(400).json({ message: "Username already use " });
-		}
-	} catch (error) {
-		next(error);
-	}
+      //return json
+      res.status(200).json({
+        user,
+      });
+    } else {
+      //Insert the new user
+      return res.status(400).json({ message: "Username already use " });
+    }
+  } catch (error) {
+    next(error);
+  }
 });
+
 router.post("/send_vouchers", async (req, res, next) => {
-	// connect to DB
-	let users_list = []
-	try {
-		const users = await User.find({});
-		// push the contact list into a array of 10
-		users.map(val => users_list.push(val.number))
-	} catch (error) {
-		next(error);
-	}
-	console.log(users_list)
+  // connect to DB
+  let users_list = [];
+  try {
+    const users = await User.find({});
+    // push the contact list into a array of 10
+    users.map((val) => users_list.push(val.number[0]));
+  } catch (error) {
+    next(error);
+  }
 
-	// select array[0] and define array[0] as sender
-	// run a loop with array[1] and use it as receiver
-	const n = 2; // number of elements we want to get
-	const shuffledArray = users_list.sort(() => 0.5 - Math.random()); // shuffles array
-	const result = shuffledArray.slice(0, n); // gets first n elements after shuffle
+  // select array[0] and define array[0] as sender
+  // run a loop with array[1] and use it as receiver
+  const result = users_list; // gets first n elements after shuffle
 
-	const sender = result[0]
-	const receiver = result[1]
+  console.log(result);
 
-	console.log(result);
- 	params_changing = ["00", "1", "671118536", "5"]
+  const link = "https://test.ussd.bafoka.network/";
+  const counter = 20353564646513;
 
- 	const link = 'https://test.ussd.bafoka.network/';
-	const counter = 0000000000000000013;
-	let params = {
-		"ussd_code": "066",
-		"msisdn": "237690996669",
-		"session_id": (counter+1).toString(), //define how to change the session_id according to the error_code
-		"ussd_response": ""
-	}
-	const sess = await axios.post(link, params)
-	.then( response => response.data)
-	.catch( response => {
-		//console.log('Error', response);
-	})
-	const array1 = ['1', '671118536', '1', '5', '0000', '00'];
+  // Nested loop
 
-	for (let i = 0; i < 10; i++) { // loop of 10 iterations
-		for (const element of array1) {
-			params.ussd_response = element
-			const sess = await axios.post(link, params)
-			console.log(sess.data)
-		}
-	}
+  for (let i = 0; i < result.length; i++) {
+    let sender = result[i];
+
+    console.log("Sender " + sender);
+
+    let params = {
+      "ussd_code": "066",
+      "msisdn": "237" + sender,
+      "session_id": (counter + 1).toString(), //define how to change the session_id according to the error_code
+      "ussd_response": "",
+    };
+
+    for (let j = 0; j < result.length; j++) {
+      if (i == j) {
+        j++;
+      } else {
+        let receiver = result[j];
+        console.log("Receiver" + receiver);
+
+        let array1 = ["", "1", receiver, "1", "5", "0000", "00"];
+        //let array1 = ["00"];
+        console.log(params);
+        try {
+          for (const element of array1) {
+            params.ussd_response = element;
+            const sess = await axios.post(link, params);
+            console.log(sess.data);
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    }
+  }
 });
 
-router.delete("/:id", async (req, res, next) => {
-	try {
-		const { id } = req.params;
-		const users = await User.findOne({
-			_id: id,
-		});
+router.post("/preRegistered", async (req, res, next) => {
+  // connect to DB
+  // 1. Get array of users from the body
+  // 2. Loop through the array
+  // 3. For i==0, create a user account
+  // 4. Adding a flag status
+  try {
+    let users_list = [];
+    const preRegister = await preRegisterUser.find({});
+    preRegister.map((val) => users_list.push(val.number));
 
-		if (!users) {
-			res.json({ message: "Users don't exit " });
-		} else {
-			await User.deleteOne({ _id: id });
-			res.json({ message: "Delete Sucessful" });
-		}
-	} catch (error) {
-		next(error);
-	}
+    //let creation_sequence = ["1", receiver, "1", "5", "0000", "00"];
+    let creation_sequence_test = ["", "2", "1", "Ali", "1", "2", "1", "", "00"];
+    const link = "https://test.ussd.bafoka.network/";
+    const counter = 02988475614643213;
+    for (let i = 0; i < users_list.length; i++) {
+      let params = {
+        "ussd_code": "066",
+        "msisdn": "237" + users_list[i],
+        "session_id": (counter + 1).toString(), //define how to change the session_id according to the error_code
+        "ussd_response": "",
+      };
+			const delay = ms => new Promise(res => setTimeout(res, ms));
+
+      for (const element of creation_sequence_test) {
+        params.ussd_response = element;
+        const sess = await axios.post(link, params);
+        console.log(sess.data);
+				await delay(6000)
+				console.log("Waitting 3 minutes")
+      }
+
+      const newUser = new Register({
+        number: users_list[i],
+      });
+      const user = await newUser.save();
+
+      //return json
+      res.status(200).json({
+        user,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
 });
 
-router.get("/:id", async (req, res, next) => {
-	try {
-		const { id } = req.params;
-		const users = await User.findOne({
-			_id: id,
-		});
+router.post("/Register", async (req, res, next) => {
+  //sleep(480); // to changer
+  setTimeout(() => {
+    Creation();
+  }, 20);
 
-		if (!users) {
-			res.json({ message: "Users don't exit " });
-		} else {
-			//await Files.deleteOne({ _id: id });
-			res.json(users);
-		}
-	} catch (error) {
-		next(error);
-	}
-});
+  async function Creation() {
+    let users_list = [];
+    try {
+      //connect to DB2
+      const users = await Register.find({});
+      // push the contact list into a array of 10
+      users.map((val) => users_list.push(val.number[0]));
+      //let creation_sequence = ["1", receiver, "1", "5", "0000", "00"];
+      let creation_sequence_test = ["", "0000", "0000", ""];
+      const link = "https://test.ussd.bafoka.network/";
+      const counter = 02055367667664013;
 
-router.put("/:id", async (req, res, next) => {
-	try {
-		const { id } = req.params;
-		const { firstName, lastName } = req.body;
-		const oldUser = await User.findOne({
-			_id: id,
-		});
+      for (let i = 0; i < users_list.length; i++) {
+        let params = {
+          "ussd_code": "066",
+          "msisdn": "237" + users_list[i],
+          "session_id": (counter + 1).toString(), //define how to change the session_id according to the error_code
+          "ussd_response": "",
+        };
+        for (const element of creation_sequence_test) {
+          params.ussd_response = element;
+          const sess = await axios.post(link, params);
+          console.log(sess.data);
+					res.status(200).json(sess.data);
+        }
+        const newUser = new User({
+          number: users_list[i],
+        });
+        const user = await newUser.save();
 
-		if (!oldUser)
-			return res.status(401).json({ message: "invalid credentials" });
-		const Newuser = await User.updateOne(
-			{
-				_id: id,
-			},
-			{
-				$set: {
-					firstName,
-					lastName,
-				},
-			}
-		);
-		res.status(200).json({ message: "Update successfuly" });
-	} catch (error) {
-		next(error);
-	}
-});
-
-
-
-router.post("/validtoken", async (req, res) => {
-	try {
-		const token = req.header("Authorization");
-		console.log(`valid ${token}`);
-
-		if (!token) return res.status(400).json("Token absent");
-
-		const verified = jwt.verify(token, process.env.JWT_SECRET);
-
-		if (!verified) return res.status(400).json("Token not verified");
-		const user = await User.findById(verified.id);
-
-		const station = await Station.find({ userId: user.id });
-
-		if (!user)
-			return res.status(400).json("Token not valid for this user anymore");
-		return res.json({
-			user: user,
-			token: token,
-			stations: station,
-		});
-	} catch (error) {
-		return error;
-	}
-});
-
-router.put("/subscription/:id/:name", async (req, res, next) => {
-	const { id, name } = req.params;
-	try {
-		if (name == "premium") {
-			const user = await User.findOne({ _id: id });
-			if (!user)
-				return res.status(401).json({ message: "invalid credentials" });
-			const newUser = await User.updateOne(
-				{
-					_id: id,
-				},
-				{
-					$set: {
-						roles: "premium",
-					},
-				}
-			);
-			res.status(200).json({ message: "Update successfuly" });
-		} else if (name == "owner") {
-			const user = await User.findOne({ _id: id });
-			if (!user)
-				return res.status(401).json({ message: "invalid credentials" });
-			const newUser = await User.updateOne(
-				{
-					_id: id,
-				},
-				{
-					$set: {
-						roles: "owner",
-					},
-				}
-			);
-			res.status(200).json({ message: "Update successfuly" });
-		} else {
-			res.json({ message: "Information incorrect" });
-		}
-	} catch (error) {
-		next(error);
-	}
-});
-
-router.post("/follow/", async (req, res, next) => {
-	const { id, idStation } = req.body;
-	if (!id && !idStation) {
-		res.json({ message: "Informations incorrectes" });
-	}
-	try {
-		const user = await User.findOne({ _id: id });
-		if (!user) {
-			res.json({ message: "Cet utilisateurs n'existe pas" });
-		} else {
-			const newStation = await User.updateOne(
-				{
-					_id: id,
-				},
-				{
-					$addToSet: {
-						stationSuivie: req.body.idStation,
-					},
-				}
-			);
-			res.status(200).json({ message: "Mise a jour effectuée" });
-		}
-	} catch (error) {
-		next(error);
-	}
-});
-
-router.post("/unfollow/", async (req, res, next) => {
-	const { id, idStation } = req.body;
-	if (!id && !idStation) {
-		res.json({ message: "Informations incorrectes" });
-	}
-	try {
-		const user = await User.findOne({ _id: id });
-		if (!user) {
-			res.json({ message: "Cet utilisateurs n'existe pas" });
-		} else {
-			const newStation = await User.updateOne(
-				{
-					_id: id,
-				},
-				{
-					$unset: {
-						stationSuivie: req.body.idStation,
-					},
-				}
-			);
-			res.status(200).json({ message: "Vous ne suivez plus cette station" });
-		}
-	} catch (error) {
-		next(error);
-	}
+        //return json
+        res.status(200).json({
+          user,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 });
 
 module.exports = router;
