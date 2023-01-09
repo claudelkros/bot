@@ -15,6 +15,7 @@ app.options("*", cors());
 
 app.use(express.json());
 
+
 // bodyParser, parses the request body to be a readable json format
 //app.use(bodyParser.urlencoded({ extended: false }));
 

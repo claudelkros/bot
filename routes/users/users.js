@@ -34,10 +34,10 @@ router.post("/seeds", async (req, res, next) => {
 
   try {
     // Check if this user already exisits
-    const user = await User.findOne({ number: req.body.number });
+    const user = await preRegisterUser.findOne({ number: req.body.number });
     if (!user) {
       //Insert the new user
-      const newUser = new User({
+      const newUser = new preRegisterUser({
         number,
       });
       const user = await newUser.save();
@@ -61,7 +61,7 @@ router.post("/send_vouchers", async (req, res, next) => {
   try {
     const users = await User.find({});
     // push the contact list into a array of 10
-    users.map((val) => users_list.push(val.number));
+    users.map((val) => users_list.push(val.number[0]));
   } catch (error) {
     next(error);
   }
@@ -73,7 +73,7 @@ router.post("/send_vouchers", async (req, res, next) => {
   console.log(result);
 
   const link = "https://test.ussd.bafoka.network/";
-  const counter = 02000000000000000013;
+  const counter = 20353564646513;
 
   // Nested loop
 
@@ -96,7 +96,7 @@ router.post("/send_vouchers", async (req, res, next) => {
         let receiver = result[j];
         console.log("Receiver" + receiver);
 
-        let array1 = ["1", receiver, "1", "5", "0000", "00"];
+        let array1 = ["", "1", receiver, "1", "5", "0000", "00"];
         //let array1 = ["00"];
         console.log(params);
         try {
@@ -125,9 +125,9 @@ router.post("/preRegistered", async (req, res, next) => {
     preRegister.map((val) => users_list.push(val.number));
 
     //let creation_sequence = ["1", receiver, "1", "5", "0000", "00"];
-    let creation_sequence_test = ["", "2", "1", "Ali", "1", "2", "1"];
+    let creation_sequence_test = ["", "2", "1", "Ali", "1", "2", "1", "", "00"];
     const link = "https://test.ussd.bafoka.network/";
-    const counter = 02988465614643213;
+    const counter = 02988475614643213;
     for (let i = 0; i < users_list.length; i++) {
       let params = {
         "ussd_code": "066",
@@ -135,11 +135,14 @@ router.post("/preRegistered", async (req, res, next) => {
         "session_id": (counter + 1).toString(), //define how to change the session_id according to the error_code
         "ussd_response": "",
       };
+			const delay = ms => new Promise(res => setTimeout(res, ms));
 
       for (const element of creation_sequence_test) {
         params.ussd_response = element;
         const sess = await axios.post(link, params);
         console.log(sess.data);
+				await delay(6000)
+				console.log("Waitting 3 minutes")
       }
 
       const newUser = new Register({
@@ -173,7 +176,7 @@ router.post("/Register", async (req, res, next) => {
       //let creation_sequence = ["1", receiver, "1", "5", "0000", "00"];
       let creation_sequence_test = ["", "0000", "0000", ""];
       const link = "https://test.ussd.bafoka.network/";
-      const counter = 02055667667664013;
+      const counter = 02055367667664013;
 
       for (let i = 0; i < users_list.length; i++) {
         let params = {
@@ -186,6 +189,7 @@ router.post("/Register", async (req, res, next) => {
           params.ussd_response = element;
           const sess = await axios.post(link, params);
           console.log(sess.data);
+					res.status(200).json(sess.data);
         }
         const newUser = new User({
           number: users_list[i],
