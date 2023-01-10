@@ -73,7 +73,11 @@ router.post("/send_vouchers", async (req, res, next) => {
   console.log(result);
 
   const link = "https://test.ussd.bafoka.network/";
-  const counter = 20353564646513;
+  function generateRandomInteger(min, max) {
+		return Math.floor(min + Math.random()*(max - min + 1))
+	}
+
+	const counter = generateRandomInteger(20353564648513, 203535646485135265487);
 
   // Nested loop
 
@@ -85,7 +89,7 @@ router.post("/send_vouchers", async (req, res, next) => {
     let params = {
       "ussd_code": "066",
       "msisdn": "237" + sender,
-      "session_id": (counter + 1).toString(), //define how to change the session_id according to the error_code
+      "session_id": counter.toString(), //define how to change the session_id according to the error_code
       "ussd_response": "",
     };
 
