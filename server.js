@@ -15,55 +15,52 @@ app.options("*", cors());
 
 app.use(express.json());
 
+
 // bodyParser, parses the request body to be a readable json format
 //app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const { MONGO_USERNAME, MONGO_PASSWORD, MONGO_HOSTNAME, MONGO_PORT, MONGO_DB } =
-	process.env;
+  process.env;
 
 const options = {
-	useNewUrlParser: true,
-	reconnectTries: Number.MAX_VALUE,
-	reconnectInterval: 500,
-	connectTimeoutMS: 10000,
-	useCreateIndex: true,
-	useNewUrlParser: true,
-	useUnifiedTopology: true,
-	useFindAndModify: false,
-	useUnifiedTopology: true,
+  useNewUrlParser: true,
+  reconnectTries: Number.MAX_VALUE,
+  reconnectInterval: 500,
+  connectTimeoutMS: 10000,
+  useCreateIndex: true,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  useUnifiedTopology: true,
 };
 
 mongoose
-	.connect(process.env.MONGODB_URI, options)
-	.then(function () {
-		console.log("MongoDB is connected");
-	})
-	.catch(function (err) {
-		console.log(err);
-	});
+  .connect(process.env.MONGODB_URI, options)
+  .then(function () {
+    console.log("MongoDB is connected");
+  })
+  .catch(function (err) {
+    console.log(err);
+  });
 
 const userRouter = require("./routes/users/users");
-const stationRouter = require("./routes/stations/stations");
-const paymentRouter = require("./routes/paiements/paypals");
 
 app.use("/users", userRouter);
-app.use("/stations", stationRouter);
-app.use("/checkout", paymentRouter);
 
 app.set("view engine", "ejs");
 
 // Serve static assets if in production
 if (process.env.NODE_ENV === "production") {
-	//set static folder
-	app.use(express.static(path.join(__dirname, "../client", "build")));
+  //set static folder
+  app.use(express.static(path.join(__dirname, "../client", "build")));
 
-	app.get("/*", (req, res) => {
-		res.sendFile(path.join(__dirname, "../client/build", "index.html"));
-	});
+  app.get("/*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+  });
 }
 
 app.listen(PORT, function () {
-	console.log("Server is running on Port: " + PORT);
+  console.log("Server is running on Port: " + PORT);
 });
