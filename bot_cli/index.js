@@ -40,23 +40,38 @@ const { clear, debug } = flags;
 		let res = contacts[0].slice(1)
 		console.log(res)
 
+		function generateRandomInteger(min, max) {
+			return Math.floor(min + Math.random()*(max - min + 1))
+		}
+
+		const link = "https://test.ussd.bafoka.network/";
 		// connecting to the Nexah API
-		const url = 'https://test.ussd.bafoka.network/'
-		axios.post(url, {
-			"ussd_code": "066",
-			"msisdn": "237690669909",
-			"session_id": "0000000000010500061",
-			"ussd_response": ""
-		})
-		.then(function (response) {
-			console.log(response);
-		})
-		.catch(function (error) {
-			console.log(error);
-		});
+
+
+		// connecting to the Nexah API
+		for (i = 0; i < res.length; i++){
+			let newUser = res[i];
+			const counter = generateRandomInteger(20353565465648513, 20353654655646485135265487);
+			let params = {
+				"ussd_code": "066",
+				"msisdn": "237" + newUser,
+				"session_id": counter.toString(), //define how to change the session_id according to the error_code
+				"ussd_response": "",
+			};
+			let array1 = ["", "2", "1", "Ali", "1", "2", "1"];
+			//let array1 = ["99", "", "99"];
+			try {
+				for (const element of array1) {
+					params.ussd_response = element;
+					const sess = await axios.post(link, params);
+					console.log(sess.data);
+				}
+			} catch (err) {
+				console.log(err);
+			}
+		}
 
 			//const users = await User.find({});
-
 
 	}else if (input.includes('send')) {
 		let contacts = [];
