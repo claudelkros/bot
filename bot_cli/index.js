@@ -69,12 +69,17 @@ const { clear, debug } = flags;
 		}
 
 		const link = "https://test.ussd.bafoka.network/";
-		const counter = generateRandomInteger(20353564648513, 203535646485135265487);
 		// connecting to the Nexah API
-		for (let i = 0; i < result.length; i++) {
+
+
+
+		// Nested loop
+		for (i = 0; i < result.length; i++){
 			let sender = result[i];
 
+			const counter = generateRandomInteger(20353564648513, 203535646485135265487);
 			console.log("Sender " + sender);
+			console.log("session_id " + counter);
 
 			let params = {
 				"ussd_code": "066",
@@ -82,17 +87,13 @@ const { clear, debug } = flags;
 				"session_id": counter.toString(), //define how to change the session_id according to the error_code
 				"ussd_response": "",
 			};
-
-			for (let j = 0; j < result.length; j++) {
-				if (i == j) {
-					j++;
-				} else {
+			for (j = 0; j < result.length; j++){
+				if ( result[i] != result[j]){
 					let receiver = result[j];
 					console.log("Receiver" + receiver);
 
-					let array1 = ["", "1", receiver, "100", "5", "0000", "00"];
-					//let array1 = ["99", "99", "99"];
-					//let array1 = ["00"];
+					let array1 = ["", "1", receiver, "1", "5", "0000"];
+					//let array1 = ["99", "", "99"];
 					console.log(params);
 					try {
 						for (const element of array1) {

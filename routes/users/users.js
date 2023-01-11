@@ -34,10 +34,10 @@ router.post("/seeds", async (req, res, next) => {
 
   try {
     // Check if this user already exisits
-    const user = await preRegisterUser.findOne({ number: req.body.number });
+    const user = await User.findOne({ number: req.body.number });
     if (!user) {
       //Insert the new user
-      const newUser = new preRegisterUser({
+      const newUser = new User({
         number,
       });
       const user = await newUser.save();
@@ -77,44 +77,41 @@ router.post("/send_vouchers", async (req, res, next) => {
 		return Math.floor(min + Math.random()*(max - min + 1))
 	}
 
-	const counter = generateRandomInteger(20353564648513, 203535646485135265487);
 
   // Nested loop
+	for (i = 0; i < result.length; i++){
+		let sender = result[i];
 
-  for (let i = 0; i < result.length; i++) {
-    let sender = result[i];
+		const counter = generateRandomInteger(20353564648513, 203535646485135265487);
+		console.log("Sender " + sender);
+		console.log("session_id " + counter);
 
-    console.log("Sender " + sender);
+		let params = {
+			"ussd_code": "066",
+			"msisdn": "237" + sender,
+			"session_id": counter.toString(), //define how to change the session_id according to the error_code
+			"ussd_response": "",
+		};
+		for (j = 0; j < result.length; j++){
+			if ( result[i] != result[j]){
+				let receiver = result[j];
+				console.log("Receiver" + receiver);
 
-    let params = {
-      "ussd_code": "066",
-      "msisdn": "237" + sender,
-      "session_id": counter.toString(), //define how to change the session_id according to the error_code
-      "ussd_response": "",
-    };
-
-    for (let j = 0; j < result.length; j++) {
-      if (i == j) {
-        j++;
-      } else {
-        let receiver = result[j];
-        console.log("Receiver" + receiver);
-
-        let array1 = ["", "1", receiver, "1", "5", "0000", "00"];
-        //let array1 = ["00"];
-        console.log(params);
-        try {
-          for (const element of array1) {
-            params.ussd_response = element;
-            const sess = await axios.post(link, params);
-            console.log(sess.data);
-          }
-        } catch (err) {
-          console.log(err);
-        }
-      }
-    }
-  }
+				let array1 = ["", "1", receiver, "1", "5", "0000"];
+				//let array1 = ["99", "", "99"];
+				console.log(params);
+				try {
+					for (const element of array1) {
+						params.ussd_response = element;
+						const sess = await axios.post(link, params);
+						console.log(sess.data);
+					}
+				} catch (err) {
+					console.log(err);
+				}
+			}
+		}
+	}
 });
 
 router.post("/preRegistered", async (req, res, next) => {
