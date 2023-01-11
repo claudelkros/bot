@@ -82,17 +82,18 @@ router.post("/send_vouchers", async (req, res, next) => {
 	for (i = 0; i < result.length; i++){
 		let sender = result[i];
 
-		const counter = generateRandomInteger(20353564648513, 203535646485135265487);
 		console.log("Sender " + sender);
-		console.log("session_id " + counter);
 
-		let params = {
-			"ussd_code": "066",
-			"msisdn": "237" + sender,
-			"session_id": counter.toString(), //define how to change the session_id according to the error_code
-			"ussd_response": "",
-		};
 		for (j = 0; j < result.length; j++){
+			const counter = generateRandomInteger(20353564648513, 203535646485135265487)
+			console.log("session_id " + counter);
+			let params = {
+				"ussd_code": "066",
+				"msisdn": "237" + sender,
+				"session_id": counter.toString(), //define how to change the session_id according to the error_code
+				"ussd_response": "",
+			};
+
 			if ( result[i] != result[j]){
 				let receiver = result[j];
 				console.log("Receiver" + receiver);

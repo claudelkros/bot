@@ -36,7 +36,7 @@ const { clear, debug } = flags;
 		// parsing command input into array
 		let contacts = [];
 		contacts.push(val)
-		console.log('creating users accounts ' +val[1])
+		console.log('Sending Vouchers to users accounts ' +val[1])
 		let res = contacts[0].slice(1)
 		console.log(res)
 
@@ -61,9 +61,8 @@ const { clear, debug } = flags;
 	}else if (input.includes('send')) {
 		let contacts = [];
 		contacts.push(val)
-		console.log('creating users accounts ' +val[1])
+		console.log('creating users accounts ' + val)
 		let result = contacts[0].slice(1)
-		console.log(result[0])
 		function generateRandomInteger(min, max) {
 			return Math.floor(min + Math.random()*(max - min + 1))
 		}
@@ -76,25 +75,18 @@ const { clear, debug } = flags;
 		// Nested loop
 		for (i = 0; i < result.length; i++){
 			let sender = result[i];
-
-			const counter = generateRandomInteger(20353564648513, 203535646485135265487);
-			console.log("Sender " + sender);
-			console.log("session_id " + counter);
-
-			let params = {
-				"ussd_code": "066",
-				"msisdn": "237" + sender,
-				"session_id": counter.toString(), //define how to change the session_id according to the error_code
-				"ussd_response": "",
-			};
 			for (j = 0; j < result.length; j++){
+				const counter = generateRandomInteger(20353564648513, 203535646485135265487);
+				let params = {
+					"ussd_code": "066",
+					"msisdn": "237" + sender,
+					"session_id": counter.toString(), //define how to change the session_id according to the error_code
+					"ussd_response": "",
+				};
 				if ( result[i] != result[j]){
 					let receiver = result[j];
-					console.log("Receiver" + receiver);
-
 					let array1 = ["", "1", receiver, "1", "5", "0000"];
 					//let array1 = ["99", "", "99"];
-					console.log(params);
 					try {
 						for (const element of array1) {
 							params.ussd_response = element;
