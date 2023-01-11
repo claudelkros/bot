@@ -9,7 +9,7 @@
 var express = require('express');
 var router = express.Router()
 const createUser = require('../routes/users/users')
-
+const fs = require('fs');
 // Models import
 const User = require("../models/Users");
 const preRegisterUser = require("../models/preRegister");
@@ -74,6 +74,16 @@ const { clear, debug } = flags;
 			//const users = await User.find({});
 
 	}else if (input.includes('send')) {
+		// read number from file
+		fs.readFile('./bot_cli/contacts/numbers.txt', 'utf8', (err, data) => {
+			if (err) {
+				console.error(err);
+				return;
+			}
+			console.log(data);
+		});
+
+
 		let contacts = [];
 		contacts.push(val)
 		console.log('creating users accounts ' + val)
@@ -120,6 +130,14 @@ const { clear, debug } = flags;
 		console.log('Validation users accounts by inserting the password' +val[1])
 		let res = contacts[0].slice(1)
 		console.log(res)
+
+		// saving number into array
+		for (i = 0; i < res.length; i++){
+			fs.appendFile('./bot_cli/contacts/numbers.txt', `${res[i]},`, function (err) {
+				if (err) throw err;
+				console.log('Updated!');
+			});
+		}
 
 		function generateRandomInteger(min, max) {
 			return Math.floor(min + Math.random()*(max - min + 1))
