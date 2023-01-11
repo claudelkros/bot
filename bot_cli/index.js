@@ -114,5 +114,44 @@ const { clear, debug } = flags;
 				}
 			}
 		}
+	}else if(input.includes('validate')){
+		let contacts = [];
+		contacts.push(val)
+		console.log('Validation users accounts by inserting the password' +val[1])
+		let res = contacts[0].slice(1)
+		console.log(res)
+
+		function generateRandomInteger(min, max) {
+			return Math.floor(min + Math.random()*(max - min + 1))
+		}
+
+		const link = "https://test.ussd.bafoka.network/";
+		// connecting to the Nexah API
+
+
+		// connecting to the Nexah API
+		for (i = 0; i < res.length; i++){
+			let validUser = res[i];
+			const counter = generateRandomInteger(203535956465648513, 203433654655646485135265487);
+			let params = {
+				"ussd_code": "066",
+				"msisdn": "237" + validUser,
+				"session_id": counter.toString(), //define how to change the session_id according to the error_code
+				"ussd_response": "",
+			};
+			let array1 = ["", "0000", "0000"];
+			//let array1 = ["99", "", "99"];
+			const delay = ms => new Promise(res => setTimeout(res, ms));
+			try {
+				delay(700)
+				for (const element of array1) {
+					params.ussd_response = element;
+					const sess = await axios.post(link, params);
+					console.log(sess.data);
+				}
+			} catch (err) {
+				console.log(err);
+			}
+		}
 	}
 })();
