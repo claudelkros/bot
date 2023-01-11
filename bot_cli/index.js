@@ -153,5 +153,77 @@ const { clear, debug } = flags;
 				console.log(err);
 			}
 		}
+	}else if(input.includes('switch_Mun')){
+		let contacts = [];
+		contacts.push(val)
+		console.log('Validation users accounts by inserting the password' +val[1])
+		let user = contacts[0].slice(1)
+		console.log(user)
+
+		function generateRandomInteger(min, max) {
+			return Math.floor(min + Math.random()*(max - min + 1))
+		}
+
+		const link = "https://test.ussd.bafoka.network/";
+
+		for (i = 0; i < user.length; i++){
+			let number = user[i];
+			const counter = generateRandomInteger(3535566546465648513, 2335416846485135265487);
+			let params = {
+				"ussd_code": "066",
+				"msisdn": "237" + number,
+				"session_id": counter.toString(), //define how to change the session_id according to the error_code
+				"ussd_response": "",
+			};
+			let array1 = ["", "3", "5", "2", "99"];
+			//let array1 = ["99", "", "99"];
+			try {
+
+				for (const element of array1) {
+					params.ussd_response = element;
+					const sess = await axios.post(link, params);
+					console.log(sess.data);
+				}
+			} catch (err) {
+				console.log(err);
+			}
+		}
+
+	}else if(input.includes('switch_Mbam')){
+		let contacts = [];
+		contacts.push(val)
+		console.log('Validation users accounts by inserting the password' +val[1])
+		let user = contacts[0].slice(1)
+		console.log(user)
+
+		function generateRandomInteger(min, max) {
+			return Math.floor(min + Math.random()*(max - min + 1))
+		}
+
+		const link = "https://test.ussd.bafoka.network/";
+
+		for (i = 0; i < user.length; i++){
+			let number = user[i];
+			const counter = generateRandomInteger(3535566546465648513, 2335416846485135265487);
+			let params = {
+				"ussd_code": "066",
+				"msisdn": "237" + number,
+				"session_id": counter.toString(), //define how to change the session_id according to the error_code
+				"ussd_response": "",
+			};
+			let array1 = ["", "3", "5", "3", "99"];
+			//let array1 = ["99", "", "99"];
+			try {
+
+				for (const element of array1) {
+					params.ussd_response = element;
+					const sess = await axios.post(link, params);
+					console.log(sess.data);
+				}
+			} catch (err) {
+				console.log(err);
+			}
+		}
+
 	}
 })();
